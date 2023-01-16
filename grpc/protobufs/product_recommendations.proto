@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message RecommendationRequest {
+  int32 userID = 1;
+  int32 cat_id = 2;
+  int32 per_page = 3;
+}
+
+message ProductRecommendationRequest {
+  int32 id = 1;
+  string title = 2;
+  int64 price = 3;
+  int32 stock = 5;
+}
+
+message ProductRecommendationsRequest {
+  repeated ProductRecommendationRequest items = 1;
+}
+
+
+service Recommendations {
+  rpc Recommend (RecommendationRequest) returns (ProductRecommendationsRequest) {};
+}
