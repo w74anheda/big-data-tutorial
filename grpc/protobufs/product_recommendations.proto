@@ -1,23 +1,31 @@
 syntax = "proto3";
 
-message RecommendationRequest {
+enum Category {
+  CAR = 0;
+  DIGITAL = 1;
+}
+message RRequest {
   int32 userID = 1;
-  int32 cat_id = 2;
+  Category cat_id = 2;
   int32 per_page = 3;
 }
 
-message ProductRecommendationRequest {
+message Product {
   int32 id = 1;
   string title = 2;
   int64 price = 3;
   int32 stock = 5;
 }
 
-message ProductRecommendationsRequest {
-  repeated ProductRecommendationRequest items = 1;
+message Products {
+  repeated Product items = 1;
 }
 
 
 service Recommendations {
-  rpc Recommend (RecommendationRequest) returns (ProductRecommendationsRequest) {};
+  rpc Recommend (RRequest) returns (Products) ;
 }
+
+
+
+// python -m grpc_tools.protoc -I ./protobufs --python_out=./recommendations --grpc_python_out=./recommendations ./protobufs/product_recommendations.proto

@@ -13,19 +13,21 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dproduct_recommendations.proto\"I\n\x15RecommendationRequest\x12\x0e\n\x06userID\x18\x01 \x01(\x05\x12\x0e\n\x06\x63\x61t_id\x18\x02 \x01(\x05\x12\x10\n\x08per_page\x18\x03 \x01(\x05\"W\n\x1cProductRecommendationRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\r\n\x05price\x18\x03 \x01(\x03\x12\r\n\x05stock\x18\x05 \x01(\x05\"M\n\x1dProductRecommendationsRequest\x12,\n\x05items\x18\x01 \x03(\x0b\x32\x1d.ProductRecommendationRequest2X\n\x0fRecommendations\x12\x45\n\tRecommend\x12\x16.RecommendationRequest\x1a\x1e.ProductRecommendationsRequest\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1dproduct_recommendations.proto\"G\n\x08RRequest\x12\x0e\n\x06userID\x18\x01 \x01(\x05\x12\x19\n\x06\x63\x61t_id\x18\x02 \x01(\x0e\x32\t.Category\x12\x10\n\x08per_page\x18\x03 \x01(\x05\"B\n\x07Product\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\r\n\x05price\x18\x03 \x01(\x03\x12\r\n\x05stock\x18\x05 \x01(\x05\"#\n\x08Products\x12\x17\n\x05items\x18\x01 \x03(\x0b\x32\x08.Product* \n\x08\x43\x61tegory\x12\x07\n\x03\x43\x41R\x10\x00\x12\x0b\n\x07\x44IGITAL\x10\x01\x32\x34\n\x0fRecommendations\x12!\n\tRecommend\x12\t.RRequest\x1a\t.Productsb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'product_recommendations_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _RECOMMENDATIONREQUEST._serialized_start=33
-  _RECOMMENDATIONREQUEST._serialized_end=106
-  _PRODUCTRECOMMENDATIONREQUEST._serialized_start=108
-  _PRODUCTRECOMMENDATIONREQUEST._serialized_end=195
-  _PRODUCTRECOMMENDATIONSREQUEST._serialized_start=197
-  _PRODUCTRECOMMENDATIONSREQUEST._serialized_end=274
-  _RECOMMENDATIONS._serialized_start=276
-  _RECOMMENDATIONS._serialized_end=364
+  _CATEGORY._serialized_start=211
+  _CATEGORY._serialized_end=243
+  _RREQUEST._serialized_start=33
+  _RREQUEST._serialized_end=104
+  _PRODUCT._serialized_start=106
+  _PRODUCT._serialized_end=172
+  _PRODUCTS._serialized_start=174
+  _PRODUCTS._serialized_end=209
+  _RECOMMENDATIONS._serialized_start=245
+  _RECOMMENDATIONS._serialized_end=297
 # @@protoc_insertion_point(module_scope)

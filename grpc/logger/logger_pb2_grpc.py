@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import product_recommendations_pb2 as product__recommendations__pb2
+import logger_pb2 as logger__pb2
 
 
-class RecommendationsStub(object):
+class LoggerStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -14,42 +14,42 @@ class RecommendationsStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Recommend = channel.unary_unary(
-                '/Recommendations/Recommend',
-                request_serializer=product__recommendations__pb2.RRequest.SerializeToString,
-                response_deserializer=product__recommendations__pb2.Products.FromString,
+        self.LogStore = channel.unary_stream(
+                '/Logger/LogStore',
+                request_serializer=logger__pb2.FRequest.SerializeToString,
+                response_deserializer=logger__pb2.Log.FromString,
                 )
 
 
-class RecommendationsServicer(object):
+class LoggerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def Recommend(self, request, context):
+    def LogStore(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_RecommendationsServicer_to_server(servicer, server):
+def add_LoggerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Recommend': grpc.unary_unary_rpc_method_handler(
-                    servicer.Recommend,
-                    request_deserializer=product__recommendations__pb2.RRequest.FromString,
-                    response_serializer=product__recommendations__pb2.Products.SerializeToString,
+            'LogStore': grpc.unary_stream_rpc_method_handler(
+                    servicer.LogStore,
+                    request_deserializer=logger__pb2.FRequest.FromString,
+                    response_serializer=logger__pb2.Log.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'Recommendations', rpc_method_handlers)
+            'Logger', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Recommendations(object):
+class Logger(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Recommend(request,
+    def LogStore(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +59,8 @@ class Recommendations(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Recommendations/Recommend',
-            product__recommendations__pb2.RRequest.SerializeToString,
-            product__recommendations__pb2.Products.FromString,
+        return grpc.experimental.unary_stream(request, target, '/Logger/LogStore',
+            logger__pb2.FRequest.SerializeToString,
+            logger__pb2.Log.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
