@@ -1,5 +1,20 @@
 FROM node:19.7.0-alpine3.17
+RUN addgroup app && adduser -S -G app app
+USER app
 WORKDIR /app
-COPY [".", "."]
+COPY app/package*.json .
 #ADD http://.../.../file.json .
 #ADD file.zip .
+RUN npm install
+COPY . .
+ENV API_URL=http://google.com/
+EXPOSE 3000
+CMD ["npm", "start"]
+#ENTRYPOINT ["npm", "start"]
+
+
+
+
+
+
+
