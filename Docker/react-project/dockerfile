@@ -7,7 +7,7 @@ COPY app/package*.json .
 #ADD file.zip .
 RUN npm install
 COPY . .
-ENV API_URL=http://google.com/
+#ENV API_URL=http://google.com/
 EXPOSE 3000
 CMD ["npm", "start"]
 #ENTRYPOINT ["npm", "start"]
