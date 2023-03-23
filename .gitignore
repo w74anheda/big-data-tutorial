@@ -1,5 +1,9 @@
 .ipynb_checkpoints
 .ipynb_*
 
-./datasets
 /datasets
+
+/Mysql/mysql/
+/Mysql/pgadmin/
+/Mysql/potgres/
+/Mysql/.ipynb_checkpoints/
