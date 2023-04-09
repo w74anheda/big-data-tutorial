@@ -1,0 +1,126 @@
+version: "3"
+
+networks:
+    default:
+
+services:
+
+    phpredisadmin:
+        image: erikdubbelboer/phpredisadmin:1.18
+        container_name: "redisManager_${PROJECT_NAME}"
+        depends_on:
+            - redis
+        environment:
+            - "ADMIN_USER=${REDISMANAGER_USER}"
+            - "ADMIN_PASS=${REDISMANAGER_PASSWORD}"
+            - "REDIS_1_HOST=redis"
+            - "REDIS_1_PORT=6379"
+            - "REDIS_1_AUTH=${REDIS_PASSWORD}"
+        links:
+            - redis
+        ports:
+            - "${REDISMANAGER_PORT}:80"
+        networks:
+            - default
+
+    redis:
+        image: redis:alpine
+        container_name: "redis_${PROJECT_NAME}"
+        command: redis-server --requirepass ${REDIS_PASSWORD}
+        ports:
+            - ${REDIS_PORT}:6379
+        networks:
+            - default
+
+    redis_master_1:
+        image: redis:alpine
+        container_name: "redis_${PROJECT_NAME}_master_1"
+        command: [
+            "redis-server", "/usr/local/etc/redis/redis.conf",
+            #"--requirepass ${REDIS_PASSWORD}"
+        ]
+        volumes:
+            - ./redis/data/redis_master_1-data:/var/lib/redis
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - 20001:6379
+        networks:
+            - default
+
+    redis_master_1_slave_1:
+        image: redis:alpine
+        container_name: "redis_${PROJECT_NAME}_master_1_slave_1"
+        command: [
+            "redis-server", "/usr/local/etc/redis/redis.conf",
+          #"--requirepass ${REDIS_PASSWORD}"
+        ]
+        volumes:
+            - ./redis/data/redis_master_1_slave_1-data:/var/lib/redis
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - 20101:6379
+        networks:
+            - default
+
+    redis_master_2:
+        image: redis:alpine
+        container_name: "redis_${PROJECT_NAME}_master_2"
+        command: [
+            "redis-server", "/usr/local/etc/redis/redis.conf",
+          #"--requirepass ${REDIS_PASSWORD}"
+        ]
+        volumes:
+            - ./redis/data/redis_master_2-data:/var/lib/redis
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - 20002:6379
+        networks:
+            - default
+
+    redis_master_2_slave_1:
+        image: redis:alpine
+        container_name: "redis_${PROJECT_NAME}_master_2_slave_1"
+        command: [
+            "redis-server", "/usr/local/etc/redis/redis.conf",
+          #"--requirepass ${REDIS_PASSWORD}"
+        ]
+        volumes:
+            - ./redis/data/redis_master_2_slave_1-data:/var/lib/redis
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - 20201:6379
+        networks:
+            - default
+
+    redis_master_3:
+        image: redis:alpine
+        container_name: "redis_${PROJECT_NAME}_master_3"
+        command: [
+            "redis-server", "/usr/local/etc/redis/redis.conf",
+          #"--requirepass ${REDIS_PASSWORD}"
+        ]
+        volumes:
+            - ./redis/data/redis_master_3-data:/var/lib/redis
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - 20003:6379
+        networks:
+            - default
+
+    redis_master_3_slave_1:
+        image: redis:alpine
+        container_name: "redis_${PROJECT_NAME}_master_3_slave_1"
+        command: [
+            "redis-server", "/usr/local/etc/redis/redis.conf",
+          #"--requirepass ${REDIS_PASSWORD}"
+        ]
+        volumes:
+            - ./redis/data/redis_master_3_slave_1-data:/var/lib/redis
+            - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - 20301:6379
+        networks:
+            - default
+
+
+
