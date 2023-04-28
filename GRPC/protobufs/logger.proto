@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+
+message FRequest {
+  string token = 1;
+}
+
+message Log {
+   int32 user_id = 1;
+}
+
+service Logger {
+  rpc LogStore (FRequest) returns (stream Log) ;
+}
+
+
+
+// python -m grpc_tools.protoc -I ./protobufs --python_out=./logger --grpc_python_out=./logger ./protobufs/logger.proto
