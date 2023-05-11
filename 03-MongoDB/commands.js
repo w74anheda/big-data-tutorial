@@ -1,1 +1,6 @@
-db.users.update({}, { $inc: { age: 1 } })
+db.movies.updateMany(
+    {},
+    {
+        $sum: { aaa: { $sum: ["$runtime", "$wieght"] } }
+    }
+)
