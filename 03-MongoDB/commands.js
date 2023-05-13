@@ -1,6 +1,4 @@
-db.movies.updateMany(
-    {},
-    {
-        $sum: { aaa: { $sum: ["$runtime", "$wieght"] } }
-    }
-)
+db.find(
+    { $text: { $search: "red car" } },
+    { score: { $meta: "text-score" } }
+).sort({ score: { $meta: "textScore" } })
