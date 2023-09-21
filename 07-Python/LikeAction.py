@@ -21,10 +21,10 @@ class LikeAction:
     IS_LOGGED_IN = False
     posts = None
 
-    def __init__(self, username, password, item_count, max_unsed_post_count, headless=True):
+    def __init__(self, username, password, item_reset_count, max_unsed_post_count, headless=True):
         self.username = username
         self.password = password,
-        self.item_count = item_count
+        self.item_reset_count = item_reset_count
         self.max_unsed_post_count = max_unsed_post_count
         self.headless = headless
         self.driver = self.create_driver()
@@ -190,14 +190,14 @@ class LikeAction:
 USERNAME = '1741995108'
 PASSWORD = '4NpzuFqdEyCDv6T'
 
-item_count = int(input('item_count: '))
-max_unsed_post_count = int(input('max_unsed_post_count: '))
+itemResetCount = int(input('item_count: '))
+maxUnsedPostCount = int(input('max_unsed_post_count: '))
 
 Action = LikeAction(
     USERNAME,
     PASSWORD,
-    item_count,
-    max_unsed_post_count,
+    itemResetCount,
+    maxUnsedPostCount,
     True
 )
 Action.get_score()
