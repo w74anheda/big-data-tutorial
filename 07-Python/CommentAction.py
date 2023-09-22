@@ -55,6 +55,8 @@ class LikeAction:
             # 'آموزنده بود',
             'سپاس',
             'احسنت',
+            'خداقوت',
+            'بسیار عالی',
             # 'جالب بود',
             # 'ممنون از اشتراک گذاری'
         ]
@@ -315,6 +317,9 @@ class LikeAction:
 
 USERNAME = '1741995108'
 PASSWORD = '4NpzuFqdEyCDv6T'
+
+# USERNAME = '1270609726'
+# PASSWORD = '093678900450'
 
 itemResetCount = int(input('item_count: '))
 maxUnsedPostCount = int(input('max_unsed_post_count: '))
