@@ -16,8 +16,8 @@ class LikeAction:
     BASE_URL = 'http://saha.moi.ir/'
     BASE_WINDOW = None
     item_count = 0
-    item_reset_count = 20
-    max_unsed_post_count = 200
+    # item_reset_count = 20
+    # max_unsed_post_count = 200
     IS_LOGGED_IN = False
     posts = None
 
@@ -42,8 +42,7 @@ class LikeAction:
 
         prefs = {"profile.default_content_setting_values.notifications": 2}
         options.add_experimental_option("prefs", prefs)
-        driver = webdriver.Chrome(service=Service(
-            "/usr/bin/chromedriver"), options=options)
+        driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=options)
         driver.set_window_size(700, 800)
         driver.set_window_position(900, 100, windowHandle='current')
         return driver
@@ -116,7 +115,7 @@ class LikeAction:
         self.driver.close()
         self.driver.switch_to.window(self.BASE_WINDOW)
 
-    def click_more_button(self, new_items):
+    def click_more_button(self):
         # print('more button ready...',
         #   f'len new: {len(new_items)}, len posts: {len(self.posts)}')
         # if (len(new_items) == len(self.posts)):
@@ -162,13 +161,13 @@ class LikeAction:
             # self.posts.iloc[-1]['done'] = True
 
         self.print_board()
-        if len(new) == self.max_unsed_post_count and self.item_count <= self.item_reset_count:
+        if len(new) >= self.max_unsed_post_count and self.item_count <= self.item_reset_count :
             print('reseting ...')
             self.refresh_page()
             self.reset()
             return self.get_score()
 
-        self.click_more_button(new)
+        self.click_more_button()
         self.scroll_bottom()
         return self.collect_posts()
 
