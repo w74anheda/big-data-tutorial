@@ -9,3 +9,6 @@
 /Mysql/.ipynb_checkpoints/
 07-Python/geckodriver.log
 07-Python/contents/
+*.log
+07-Python/.vscode/settings.json
+07-Python/.vscode/settings.json
