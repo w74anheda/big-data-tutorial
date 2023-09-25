@@ -186,17 +186,40 @@ class LikeAction:
         self.refresh_page()
 
 
-USERNAME = '1741995108'
-PASSWORD = '4NpzuFqdEyCDv6T'
 
+user = input('who? masoud|abbas: ')
 itemResetCount = int(input('item_count: '))
 maxUnsedPostCount = int(input('max_unsed_post_count: '))
 
-Action = LikeAction(
+if user =='masoud':
+    USERNAME = '1741995108'
+    PASSWORD = '4NpzuFqdEyCDv6T'
+elif user =='abbas':
+    USERNAME = '1270609726'
+    PASSWORD = '093678900450'
+else:
+    print('wrong user ...')
+    exit(1);
+
+
+try:
+    
+    Action = LikeAction(
+        USERNAME,
+        PASSWORD,
+        itemResetCount,
+        maxUnsedPostCount,
+        True
+    )
+    Action.get_score()
+    
+except Exception:
+    Action = LikeAction(
     USERNAME,
     PASSWORD,
     itemResetCount,
     maxUnsedPostCount,
     True
 )
-Action.get_score()
+    Action.get_score()
+
