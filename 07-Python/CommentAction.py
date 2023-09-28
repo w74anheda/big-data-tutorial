@@ -21,7 +21,8 @@ class LikeAction:
     IS_LOGGED_IN = False
     posts = None
     user_profile_id = 'profile-42137'
-
+    each_post_max_comment = 30
+    
     def __init__(self, username, password, item_reset_count, max_unsed_post_count, headless=True):
         self.username = username
         self.password = password,
@@ -40,11 +41,11 @@ class LikeAction:
             '✔️',
             '🙏🏻',
             '🙏🏻🙏🏻',
-            '🙏🏻🙏🏻🙏🏻',
+            # '🙏🏻🙏🏻🙏🏻',
             '✅️',
             '👍🏻',
             '👍🏻👍🏻',
-            '👍🏻👍🏻👍🏻',
+            # '👍🏻👍🏻👍🏻',
             'تشکر',
             'درود بر شما',
             # 'ممنون',
@@ -142,28 +143,15 @@ class LikeAction:
                                 return parent_id(arguments[0])
                                 """, comment)
 
-    def get_root_child_comment(self, comment, comment_user_id):
+    def get_root_child_comment(self, comment_id):
         return self.driver.execute_script("""
-                                childs = arguments[0].querySelectorAll(".js_mini_feed_comment")
-                                function findAncestor (el, sel) {
-                                    while ((el = el.parentElement) && !((el.matches || el.matchesSelector).call(el,sel)));
-                                    return el;
-                                }
-                                
-                                function parent_id(comment){
-                                    try {
-                                        return findAncestor(comment,'.js_mini_feed_comment')
-                                        .querySelector('.comment_mini_content')
-                                        .querySelector(".user_profile_link_span>a")
-                                        .getAttribute('href').split('/')[3]
-                                        }
-                                        catch(err) {
-                                            return null
-                                        }
-                                }
-                                return Array.from(childs).filter(comment => (parent_id(comment) == arguments[1]) )
-                                
-                                """, comment, comment_user_id)
+                                return document.querySelectorAll(`#js_comment_children_holder_${arguments[0]} > [id*="js_comment_"]`)
+                                """, comment_id)
+
+    def get_comment_id(self, comment):
+        return self.driver.execute_script("""
+            return arguments[0].getAttribute('id')
+            """, comment).split('_')[-1]
 
     def get_comment_user_id(self, comment):
         return self.driver.execute_script("""
@@ -171,84 +159,120 @@ class LikeAction:
             return user.getAttribute('href')
             """, comment).split('/')[-2]
 
-    def action(self, post):
-
+    def open_new_page(self, url):
         self.driver.execute_script("window.open();")
         self.driver.switch_to.window(self.driver.window_handles[1])
-        # self.driver.get(post['href'])
-        self.driver.get(post['href'])
+        # self.driver.get(url)
+        self.driver.get(url)
+        
+    def reset_max_item_handler(self):
+        self.print_board()
+        print('item_count reset fire ....')
+        self.driver.close()
+        self.driver.switch_to.window(self.BASE_WINDOW)
+        self.reset()
+        return self.get_score()
 
-        comments = self.driver.find_elements(
-            By.CLASS_NAME, "js_mini_feed_comment")
+    def reply_comment(self, comment):
 
+        comment_id = self.get_comment_id(comment)
+        user_id = self.get_comment_user_id(comment)
+
+        if user_id == self.user_profile_id or self.is_replied(comment_id):
+            return
+        self.driver.execute_script(
+            f'arguments[0].querySelector(".js_comment_feed_new_reply").click()', comment)
+        self.driver.execute_script("""
+            textarea = arguments[0].querySelector(".js_comment_feed_textarea.spmentionRes")
+            textarea.value = arguments[1]
+            arguments[0].querySelector(".js_feed_add_comment_button> input").click()
+            """, comment, self.random_comment())
+        # arguments[0].querySelector(".js_feed_add_comment_button> input").click()
+        print(f'comment inserted parent: {comment.getAttribute("id")}')
+        self.item_count += 1
+
+    def get_root_comment_post(self):
+        return self.driver.find_elements(By.CSS_SELECTOR, '[id*="js_feed_comment_post_"] > div > [id*="js_comment_"]')
+
+    def write_comment(self):
+        root_comments = self.get_root_comment_post()
+        is_write_root_commente = False
+        for comment in root_comments:
+            user_id = self.get_comment_user_id(comment)
+            if user_id == self.user_profile_id:
+                is_write_root_commente = True
+                
+        if not is_write_root_commente:
+            self.driver.execute_script("""
+            textarea = document.querySelector('textarea[id*="js_feed_comment_form_textarea_"]')
+            textarea.value = arguments[0]
+            document.querySelector('[id*="comment_form"] > div.feed_comment_buttons_wrap > div > input').click()
+            """,  self.random_comment())
+        self.item_count += 1
+            
+    def is_replied(self, comment_id):
+        childs = self.get_root_child_comment(comment_id)
+        for child in childs:
+            user_id = self.get_comment_user_id(child)
+            if user_id == self.user_profile_id:
+                return True
+        return False
+
+    def count_of_my_comment(self, comments):
+        count = 0
+        for comment in comments:
+            user_id = self.get_comment_user_id(comment)
+            if user_id == self.user_profile_id:
+                count+=1
+        return count
+        
+    def action(self, post):
+
+        self.open_new_page(post['href'])
+        
+        try:
+            self.write_comment()
+            time.sleep(.3)
+            
+            comments = self.driver.find_elements(
+                By.CSS_SELECTOR, '[id*="js_comment_"].js_mini_feed_comment')
+            
+            count = self.count_of_my_comment(comments)
+            if count > self.each_post_max_comment :
+                print(f'')
+                print(f'current counts: {count}, max count fire, go next page ...')
+                self.print_board()
+                self.driver.close()
+                self.driver.switch_to.window(self.BASE_WINDOW)
+                return
+        except Exception:
+            self.print_board()
+            self.driver.close()
+            self.driver.switch_to.window(self.BASE_WINDOW)
+            return
+        
         for comment in comments:
 
             if self.item_count == self.item_reset_count:
-                self.print_board()
-                print('item_count reset fire ....')
-                self.driver.close()
-                self.driver.switch_to.window(self.BASE_WINDOW)
-                self.reset()
-                return self.get_score()
+                return self.reset_max_item_handler()
 
             try:
-                new_child = []
+                comment_id = self.get_comment_id(comment)
+                root_child = self.get_root_child_comment(comment_id)
 
-                comment_user_id = self.get_comment_user_id(comment)
+                # reply parent comment
+                self.reply_comment(comment)
+                time.sleep(.3)
 
-                if comment_user_id == self.user_profile_id:
-                    continue
-
-                childs = self.get_root_child_comment(comment, comment_user_id)
-
-                childs_root_ids = []
-                for child in childs:
-                    verified = True
-                    child_user_id = self.get_comment_user_id(child)
-                    childs_root_ids.append(child_user_id)
-                    if child_user_id == self.user_profile_id:
-                        continue
-
-                    child_root_childs = self.get_root_child_comment(
-                        child, child_user_id)
-                    for child_root in child_root_childs:
-                        child_root_user_id = self.get_comment_user_id(
-                            child_root)
-                        if child_root_user_id == self.user_profile_id:
-                            verified = False
-                    if verified:
-                        new_child.append(child)
-
-                if not len(childs) or self.user_profile_id not in childs_root_ids:
-                    new_child.append(comment)
-
-                bin = []
-                unique_comments = []
-                for item in new_child:
-                    id = item.get_attribute('id')
-                    if id not in bin:
-                        bin.append(id)
-                        unique_comments.append(item)
-
-                for item in unique_comments:
-                    self.driver.execute_script(
-                        f'arguments[0].querySelector(".js_comment_feed_new_reply").click()', item)
-                    self.driver.execute_script("""
-                        textarea = arguments[0].querySelector(".js_comment_feed_textarea.spmentionRes")
-                        console.log(textarea)
-                        textarea.value = arguments[1]
-                        
-                        arguments[0].querySelector(".js_feed_add_comment_button> input").click()
-                        
-                        """, item, self.random_comment())
-
-                    # click submit
-                    self.item_count += 1
-                    # print(f'*item_{self.item_count}...')
+                # reply child comment
+                for child in root_child:
+                    self.reply_comment(child)
+                    time.sleep(.3)
 
             except Exception as err:
                 continue
-        # time.sleep(2)
+        
+        self.print_board()
         self.driver.close()
         self.driver.switch_to.window(self.BASE_WINDOW)
 
@@ -319,15 +343,19 @@ user = input('who? masoud|abbas: ')
 itemResetCount = int(input('item_count: '))
 maxUnsedPostCount = int(input('max_unsed_post_count: '))
 
-if user =='masoud':
+# user = 'masoud'
+# itemResetCount = 100
+# maxUnsedPostCount = 100
+
+if user == 'masoud':
     USERNAME = '1741995108'
     PASSWORD = '4NpzuFqdEyCDv6T'
-elif user =='abbas':
+elif user == 'abbas':
     USERNAME = '1270609726'
     PASSWORD = '093678900450'
 else:
     print('wrong user ...')
-    exit(1);
+    exit(1)
 
 try:
     Action = LikeAction(
