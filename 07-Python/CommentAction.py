@@ -12,7 +12,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-class LikeAction:
+class CommentAction:
     BASE_URL = 'http://saha.moi.ir/'
     BASE_WINDOW = None
     item_count = 0
@@ -22,12 +22,14 @@ class LikeAction:
     posts = None
     user_profile_id = 'profile-42137'
     each_post_max_comment = 30
-    
-    def __init__(self, username, password, item_reset_count, max_unsed_post_count, headless=True):
+
+    def __init__(self, url, username, password, item_reset_count, max_unsed_post_count, user_profile_id, headless=True):
+        self.BASE_URL = url
         self.username = username
         self.password = password,
         self.item_reset_count = item_reset_count
         self.max_unsed_post_count = max_unsed_post_count
+        self.user_profile_id = user_profile_id
         self.headless = headless
         self.driver = self.create_driver()
         print('starting ...')
@@ -36,7 +38,7 @@ class LikeAction:
         comments = [
             'درود',
             # 'سپاس',
-            'متشکرم',
+            # 'متشکرم',
             # 'خداقوت',
             '✔️',
             '🙏🏻',
@@ -46,8 +48,8 @@ class LikeAction:
             '👍🏻',
             '👍🏻👍🏻',
             # '👍🏻👍🏻👍🏻',
-            'تشکر',
-            'درود بر شما',
+            # 'تشکر',
+            # 'درود بر شما',
             # 'ممنون',
             '👌',
             '👌👌',
@@ -55,7 +57,7 @@ class LikeAction:
             # ' ممنون از مطالب خوبتون',
             # 'آموزنده بود',
             'سپاس',
-            'احسنت',
+            # 'احسنت',
             'خداقوت',
             'بسیار عالی',
             # 'جالب بود',
@@ -162,9 +164,8 @@ class LikeAction:
     def open_new_page(self, url):
         self.driver.execute_script("window.open();")
         self.driver.switch_to.window(self.driver.window_handles[1])
-        # self.driver.get(url)
         self.driver.get(url)
-        
+
     def reset_max_item_handler(self):
         self.print_board()
         print('item_count reset fire ....')
@@ -194,22 +195,31 @@ class LikeAction:
     def get_root_comment_post(self):
         return self.driver.find_elements(By.CSS_SELECTOR, '[id*="js_feed_comment_post_"] > div > [id*="js_comment_"]')
 
+    def get_current_post_user_id(self):
+        url = self.driver.execute_script(
+            "return document.querySelector('.user_profile_link_span > a').getAttribute('href')")
+        return url.split('/')[-2]
+
     def write_comment(self):
+        if self.get_current_post_user_id() == self.user_profile_id:
+            return False
+
         root_comments = self.get_root_comment_post()
         is_write_root_commente = False
         for comment in root_comments:
             user_id = self.get_comment_user_id(comment)
             if user_id == self.user_profile_id:
                 is_write_root_commente = True
-                
+
         if not is_write_root_commente:
             self.driver.execute_script("""
             textarea = document.querySelector('textarea[id*="js_feed_comment_form_textarea_"]')
             textarea.value = arguments[0]
             document.querySelector('[id*="comment_form"] > div.feed_comment_buttons_wrap > div > input').click()
             """,  self.random_comment())
+        
         self.item_count += 1
-            
+
     def is_replied(self, comment_id):
         childs = self.get_root_child_comment(comment_id)
         for child in childs:
@@ -223,24 +233,24 @@ class LikeAction:
         for comment in comments:
             user_id = self.get_comment_user_id(comment)
             if user_id == self.user_profile_id:
-                count+=1
+                count += 1
         return count
-        
+
     def action(self, post):
 
         self.open_new_page(post['href'])
-        
+
         try:
             self.write_comment()
             time.sleep(.3)
-            
+
             comments = self.driver.find_elements(
                 By.CSS_SELECTOR, '[id*="js_comment_"].js_mini_feed_comment')
-            
+
             count = self.count_of_my_comment(comments)
-            if count > self.each_post_max_comment :
-                print(f'')
-                print(f'current counts: {count}, max count fire, go next page ...')
+            if count > self.each_post_max_comment:
+                print(
+                    f'current counts: {count}, max count fire, go next page ...')
                 self.print_board()
                 self.driver.close()
                 self.driver.switch_to.window(self.BASE_WINDOW)
@@ -250,7 +260,7 @@ class LikeAction:
             self.driver.close()
             self.driver.switch_to.window(self.BASE_WINDOW)
             return
-        
+
         for comment in comments:
 
             if self.item_count == self.item_reset_count:
@@ -271,7 +281,7 @@ class LikeAction:
 
             except Exception as err:
                 continue
-        
+
         self.print_board()
         self.driver.close()
         self.driver.switch_to.window(self.BASE_WINDOW)
@@ -339,39 +349,44 @@ class LikeAction:
         self.refresh_page()
 
 
-user = input('who? masoud|abbas: ')
-itemResetCount = int(input('item_count: '))
-maxUnsedPostCount = int(input('max_unsed_post_count: '))
+if __name__ == '__main__':
+    user = input('who? masoud|abbas: ') or 'masoud'
+    BASE_URL = input('page_url: https://saha.moi.ir ?') or 'https://saha.moi.ir'
+    itemResetCount = input('item_count: ') or 10
+    itemResetCount = int(itemResetCount)
+    maxUnsedPostCount = input('max_unsed_post_count: ') or 60
+    maxUnsedPostCount = int(maxUnsedPostCount)
 
-# user = 'masoud'
-# itemResetCount = 100
-# maxUnsedPostCount = 100
+    if user == 'masoud':
+        USERNAME = '1741995108'
+        PASSWORD = '4NpzuFqdEyCDv6T'
+        user_profile_id = 'profile-42137'
+    elif user == 'abbas':
+        USERNAME = '1270609726'
+        PASSWORD = '093678900450'
+        user_profile_id = 'profile-42029'
+    else:
+        print('wrong user ...')
+        exit(1)
 
-if user == 'masoud':
-    USERNAME = '1741995108'
-    PASSWORD = '4NpzuFqdEyCDv6T'
-elif user == 'abbas':
-    USERNAME = '1270609726'
-    PASSWORD = '093678900450'
-else:
-    print('wrong user ...')
-    exit(1)
-
-try:
-    Action = LikeAction(
-        USERNAME,
-        PASSWORD,
-        itemResetCount,
-        maxUnsedPostCount,
-        True
-    )
-    Action.get_score()
-except Exception:
-    Action = LikeAction(
-        USERNAME,
-        PASSWORD,
-        itemResetCount,
-        maxUnsedPostCount,
-        True
-    )
-    Action.get_score()
+    try:
+        Action = CommentAction(
+            BASE_URL,
+            USERNAME,
+            PASSWORD,
+            itemResetCount,
+            maxUnsedPostCount,
+            user_profile_id,
+            False
+        )
+        Action.get_score()
+    except Exception:
+        Action = CommentAction(
+            BASE_URL,
+            PASSWORD,
+            itemResetCount,
+            maxUnsedPostCount,
+            user_profile_id,
+            False
+        )
+        Action.get_score()

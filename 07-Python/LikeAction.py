@@ -42,7 +42,8 @@ class LikeAction:
 
         prefs = {"profile.default_content_setting_values.notifications": 2}
         options.add_experimental_option("prefs", prefs)
-        driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=options)
+        driver = webdriver.Chrome(service=Service(
+            "/usr/bin/chromedriver"), options=options)
         driver.set_window_size(700, 800)
         driver.set_window_position(900, 100, windowHandle='current')
         return driver
@@ -161,7 +162,7 @@ class LikeAction:
             # self.posts.iloc[-1]['done'] = True
 
         self.print_board()
-        if len(new) >= self.max_unsed_post_count and self.item_count <= self.item_reset_count :
+        if len(new) >= self.max_unsed_post_count and self.item_count <= self.item_reset_count:
             print('reseting ...')
             self.refresh_page()
             self.reset()
@@ -186,40 +187,39 @@ class LikeAction:
         self.refresh_page()
 
 
+if __name__ == '__main__':
+    user = input('who? masoud|abbas: ') or 'masoud'
+    itemResetCount = input('item_count: ') or 10
+    itemResetCount = int(itemResetCount)
+    maxUnsedPostCount = input('max_unsed_post_count: ') or 60
+    maxUnsedPostCount = int(maxUnsedPostCount)
 
-user = input('who? masoud|abbas: ')
-itemResetCount = int(input('item_count: '))
-maxUnsedPostCount = int(input('max_unsed_post_count: '))
+    if user == 'masoud':
+        USERNAME = '1741995108'
+        PASSWORD = '4NpzuFqdEyCDv6T'
+    elif user == 'abbas':
+        USERNAME = '1270609726'
+        PASSWORD = '093678900450'
+    else:
+        print('wrong user ...')
+        exit(1)
+    try:
 
-if user =='masoud':
-    USERNAME = '1741995108'
-    PASSWORD = '4NpzuFqdEyCDv6T'
-elif user =='abbas':
-    USERNAME = '1270609726'
-    PASSWORD = '093678900450'
-else:
-    print('wrong user ...')
-    exit(1);
+        Action = LikeAction(
+            USERNAME,
+            PASSWORD,
+            itemResetCount,
+            maxUnsedPostCount,
+            True
+        )
+        Action.get_score()
 
-
-try:
-    
-    Action = LikeAction(
-        USERNAME,
-        PASSWORD,
-        itemResetCount,
-        maxUnsedPostCount,
-        True
-    )
-    Action.get_score()
-    
-except Exception:
-    Action = LikeAction(
-    USERNAME,
-    PASSWORD,
-    itemResetCount,
-    maxUnsedPostCount,
-    True
-)
-    Action.get_score()
-
+    except Exception:
+        Action = LikeAction(
+            USERNAME,
+            PASSWORD,
+            itemResetCount,
+            maxUnsedPostCount,
+            True
+        )
+        Action.get_score()
