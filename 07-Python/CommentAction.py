@@ -377,7 +377,7 @@ if __name__ == '__main__':
             itemResetCount,
             maxUnsedPostCount,
             user_profile_id,
-            False
+            True
         )
         Action.get_score()
     except Exception:
@@ -387,6 +387,6 @@ if __name__ == '__main__':
             itemResetCount,
             maxUnsedPostCount,
             user_profile_id,
-            False
+            True
         )
         Action.get_score()
