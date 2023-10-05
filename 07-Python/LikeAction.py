@@ -146,20 +146,29 @@ class LikeAction:
                                 """, comment)
 
     def get_root_child_comment(self, comment_id):
-        return self.driver.execute_script("""
+        try:
+            return self.driver.execute_script("""
                                 return document.querySelectorAll(`#js_comment_children_holder_${arguments[0]} > [id*="js_comment_"]`)
                                 """, comment_id)
+        except Exception:
+            return None
 
     def get_comment_id(self, comment):
-        return self.driver.execute_script("""
+        try:
+            return self.driver.execute_script("""
             return arguments[0].getAttribute('id')
             """, comment).split('_')[-1]
+        except Exception:
+            return None
 
     def get_comment_user_id(self, comment):
-        return self.driver.execute_script("""
+        try:
+            return self.driver.execute_script("""
             user = arguments[0].querySelector(".user_profile_link_span>a")
             return user.getAttribute('href')
             """, comment).split('/')[-2]
+        except Exception:
+            return None
 
     def open_new_page(self, url):
         self.driver.execute_script("window.open();")
@@ -176,49 +185,61 @@ class LikeAction:
 
     def reply_comment(self, comment):
 
-        comment_id = self.get_comment_id(comment)
-        user_id = self.get_comment_user_id(comment)
+        try:
+            comment_id = self.get_comment_id(comment)
+            user_id = self.get_comment_user_id(comment)
 
-        if user_id == self.user_profile_id or self.is_replied(comment_id):
+            if user_id == self.user_profile_id or self.is_replied(comment_id):
+                return
+            self.driver.execute_script(
+                f'arguments[0].querySelector(".js_comment_feed_new_reply").click()', comment)
+            self.driver.execute_script("""
+                textarea = arguments[0].querySelector(".js_comment_feed_textarea.spmentionRes")
+                textarea.value = arguments[1]
+                arguments[0].querySelector(".js_feed_add_comment_button> input").click()
+                """, comment, self.random_comment())
+            # arguments[0].querySelector(".js_feed_add_comment_button> input").click()
+            print(f'comment inserted parent: {comment.getAttribute("id")}')
+            self.item_count += 1
+        except Exception:
             return
-        self.driver.execute_script(
-            f'arguments[0].querySelector(".js_comment_feed_new_reply").click()', comment)
-        self.driver.execute_script("""
-            textarea = arguments[0].querySelector(".js_comment_feed_textarea.spmentionRes")
-            textarea.value = arguments[1]
-            arguments[0].querySelector(".js_feed_add_comment_button> input").click()
-            """, comment, self.random_comment())
-        # arguments[0].querySelector(".js_feed_add_comment_button> input").click()
-        print(f'comment inserted parent: {comment.getAttribute("id")}')
-        self.item_count += 1
 
     def get_root_comment_post(self):
-        return self.driver.find_elements(By.CSS_SELECTOR, '[id*="js_feed_comment_post_"] > div > [id*="js_comment_"]')
+        try:
+            return self.driver.find_elements(
+            By.CSS_SELECTOR, '[id*="js_feed_comment_post_"] > div > [id*="js_comment_"]')
+        except Exception:
+            return None
 
     def get_current_post_user_id(self):
-        url = self.driver.execute_script(
+        try:
+            url = self.driver.execute_script(
             "return document.querySelector('.user_profile_link_span > a').getAttribute('href')")
-        return url.split('/')[-2]
+            return url.split('/')[-2]
+        except Exception:
+            return None
 
     def write_comment(self):
-        if self.get_current_post_user_id() == self.user_profile_id:
-            return False
+        try:
+            if self.get_current_post_user_id() == self.user_profile_id:
+                return False
+            root_comments = self.get_root_comment_post()
+            is_write_root_commente = False
+            for comment in root_comments:
+                user_id = self.get_comment_user_id(comment)
+                if user_id == self.user_profile_id:
+                    is_write_root_commente = True
 
-        root_comments = self.get_root_comment_post()
-        is_write_root_commente = False
-        for comment in root_comments:
-            user_id = self.get_comment_user_id(comment)
-            if user_id == self.user_profile_id:
-                is_write_root_commente = True
-
-        if not is_write_root_commente:
-            self.driver.execute_script("""
-            textarea = document.querySelector('textarea[id*="js_feed_comment_form_textarea_"]')
-            textarea.value = arguments[0]
-            document.querySelector('[id*="comment_form"] > div.feed_comment_buttons_wrap > div > input').click()
-            """,  self.random_comment())
-        
-        self.item_count += 1
+            if not is_write_root_commente:
+                self.driver.execute_script("""
+                textarea = document.querySelector('textarea[id*="js_feed_comment_form_textarea_"]')
+                textarea.value = arguments[0]
+                document.querySelector('[id*="comment_form"] > div.feed_comment_buttons_wrap > div > input').click()
+                """,  self.random_comment())
+            
+            self.item_count += 1
+        except Exception:
+            return None
 
     def is_replied(self, comment_id):
         childs = self.get_root_child_comment(comment_id)
@@ -271,17 +292,20 @@ class LikeAction:
         self.driver.switch_to.window(self.BASE_WINDOW)
 
     def click_more_button(self, new_items):
-        if (True):
-            self.driver.execute_script("""
-                                            btn = document.querySelector("#feed_view_more > a")
-                                            isHidden = btn.offsetParent === null
-                                            if(! btn || isHidden ){
-                                                return false
-                                            }
-                                            btn.click()
-                                            return true
-                                           """)
-            time.sleep(3)
+        try:
+            if (True):
+                self.driver.execute_script("""
+                                                btn = document.querySelector("#feed_view_more > a")
+                                                isHidden = btn.offsetParent === null
+                                                if(! btn || isHidden ){
+                                                    return false
+                                                }
+                                                btn.click()
+                                                return true
+                                            """)
+                time.sleep(3)
+        except Exception:
+            return None
 
     def collect_posts(self):
 
@@ -319,12 +343,14 @@ class LikeAction:
         return self.collect_posts()
 
     def get_score(self):
-        if not self.IS_LOGGED_IN:
-            self.auto_login()
-
-        self.set_base_window()
-        self.posts = self.init_posts()
-        self.collect_posts()
+        try:
+            if not self.IS_LOGGED_IN:
+                self.auto_login()
+            self.set_base_window()
+            self.posts = self.init_posts()
+            self.collect_posts()
+        except Exception:
+            return self.get_score()
 
     def reset(self):
         self.set_base_window()
