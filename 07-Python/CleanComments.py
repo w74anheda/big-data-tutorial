@@ -237,33 +237,40 @@ class CommentAction:
         return count
 
     def action(self, post):
+        
+        self.driver.execute_script("""
+                    comments = document.querySelectorAll('[id*="js_comment_"].js_mini_feed_comment')
+                    comments.forEach(comment =>{
+                        user = comment.querySelector(".user_profile_link_span>a")
+                        user_id = user.getAttribute('href')
+                        if (user_id == 'https://saha.moi.ir/profile-42137/'){
+                            try{comment.querySelector('ul ul li:nth-of-type(1) a').click()}catch{return}
+                        }
+                        
+                        })
+                    """,f'https://saha.moi.ir/{self.user_profile_id}/')
+        time.sleep(10)
+        # self.open_new_page(post['href'])
 
-        self.open_new_page(post['href'])
-
-        comments = self.driver.find_elements(
-            By.CSS_SELECTOR, '[id*="js_comment_"].js_mini_feed_comment')
-
-        count = self.count_of_my_comment(comments)
-
-        for comment in comments:
-            try:
-                user_id = self.get_comment_user_id(comment)
-                if user_id != self.user_profile_id:
-                    self.driver.execute_script("""
-                            arguments[0].querySelector('ul ul li:nth-of-type(1) i.fa.fa-trash-o').parentElement.click()
-                            arguments[0].querySelector('ul ul li:nth-of-type(1) i.fa.fa-trash-o').parentElement.click()
-                            arguments[0].querySelector('ul ul li:nth-of-type(1) a').parentElement.click()
-                            arguments[0].querySelector('ul ul li:nth-of-type(1) a').parentElement.click()
-                            """,  comment)
-                    self.item_count += 1   
-                    time.sleep(1)
-            except Exception as err:
-                 
-                continue
-            
+        # try:
+        #     count_ = self.driver.execute_script("""
+        #             comments = document.querySelectorAll('[id*="js_comment_"].js_mini_feed_comment')
+        #             count = 0
+        #             comments.forEach(comment =>{
+        #                 try{
+        #                     comment.querySelector('ul ul li:nth-of-type(1) a').click()
+        #                     count+=1
+        #                     }catch{return count }
+        #                 })
+        #             return count
+        #             """)
+        #     self.item_count += count_   
+        #     time.sleep(1)
+        # except Exception as err:
+        #     pass            
         self.print_board()
-        self.driver.close()
-        self.driver.switch_to.window(self.BASE_WINDOW)
+        # self.driver.close()
+        # self.driver.switch_to.window(self.BASE_WINDOW)
 
     def click_more_button(self, new_items):
         if (True):
@@ -283,24 +290,36 @@ class CommentAction:
         new = self.driver.find_elements(
             By.CLASS_NAME, "js_feed_view_more_entry_holder")
 
-        for post in tqdm(new):
-            ID = post.get_attribute('id')
-            if len(self.posts[self.posts['id'] == ID]):
+        # for post in tqdm(new):
+        #     ID = post.get_attribute('id')
+        #     if len(self.posts[self.posts['id'] == ID]):
 
-                continue
+        #         continue
 
-            href = post.find_element(
-                By.CLASS_NAME, 'feed_permalink').get_attribute('href')
-            _ = pd.Series({
-                "id": ID,
-                "element": post,
-                "href": href,
-                "done": False
-            })
-            self.posts = self.posts.append(_, ignore_index=True)
+        #     href = post.find_element(
+        #         By.CLASS_NAME, 'feed_permalink').get_attribute('href')
+        #     _ = pd.Series({
+        #         "id": ID,
+        #         "element": post,
+        #         "href": href,
+        #         "done": False
+        #     })
+        #     self.posts = self.posts.append(_, ignore_index=True)
 
-            self.action(self.posts.iloc[-1])
-            # self.posts.iloc[-1]['done'] = True
+        #     self.action(self.posts.iloc[-1])
+        #     # self.posts.iloc[-1]['done'] = True
+        self.driver.execute_script("""
+                    comments = document.querySelectorAll('[id*="js_comment_"].js_mini_feed_comment')
+                    comments.forEach(comment =>{
+                        user = comment.querySelector(".user_profile_link_span>a")
+                        user_id = user.getAttribute('href')
+                        if (user_id == 'https://saha.moi.ir/profile-42137/'){
+                            try{comment.querySelector('ul ul li:nth-of-type(1) a').click()}catch{return}
+                        }
+                        
+                        })
+                    """,f'https://saha.moi.ir/{self.user_profile_id}/')
+        time.sleep(10)
 
         self.print_board()
         if len(new) >= self.max_unsed_post_count and self.item_count <= self.item_reset_count:
@@ -372,6 +391,11 @@ if __name__ == '__main__':
 """
 comments = document.querySelectorAll('[id*="js_comment_"].js_mini_feed_comment')
 comments.forEach(comment =>{
-    comment.querySelector('ul ul li:nth-of-type(1) a').click()
-})
+      user = comment.querySelector(".user_profile_link_span>a")
+      user_id = user.getAttribute('href')
+      if (user_id == 'https://saha.moi.ir/profile-42137/'){
+          try{comment.querySelector('ul ul li:nth-of-type(1) a').click()}catch{return}
+      }
+    
+    })
 """ 
