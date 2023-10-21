@@ -238,8 +238,6 @@ class CommentAction:
 
     def action(self, post):
 
-
-        
         self.open_new_page(post['href'])
 
         comments = self.driver.find_elements(
@@ -252,8 +250,8 @@ class CommentAction:
                 user_id = self.get_comment_user_id(comment)
                 if user_id != self.user_profile_id:
                     self.driver.execute_script("""
-                            arguments[0].querySelector('ul ul li:nth-of-type(1) a').parentElement.click()
-                            arguments[0].querySelector('ul ul li:nth-of-type(1) a').parentElement.click()
+                            arguments[0].querySelector('ul ul li:nth-of-type(1) i.fa.fa-trash-o').parentElement.click()
+                            arguments[0].querySelector('ul ul li:nth-of-type(1) i.fa.fa-trash-o').parentElement.click()
                             arguments[0].querySelector('ul ul li:nth-of-type(1) a').parentElement.click()
                             arguments[0].querySelector('ul ul li:nth-of-type(1) a').parentElement.click()
                             """,  comment)
