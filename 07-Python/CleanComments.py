@@ -19,7 +19,7 @@ class CommentAction:
     item_reset_count = 20
     max_unsed_post_count = 200
     IS_LOGGED_IN = False
-    posts = None
+    posts = []
     user_profile_id = 'profile-42137'
     each_post_max_comment = 30
 
@@ -290,24 +290,6 @@ class CommentAction:
         new = self.driver.find_elements(
             By.CLASS_NAME, "js_feed_view_more_entry_holder")
 
-        # for post in tqdm(new):
-        #     ID = post.get_attribute('id')
-        #     if len(self.posts[self.posts['id'] == ID]):
-
-        #         continue
-
-        #     href = post.find_element(
-        #         By.CLASS_NAME, 'feed_permalink').get_attribute('href')
-        #     _ = pd.Series({
-        #         "id": ID,
-        #         "element": post,
-        #         "href": href,
-        #         "done": False
-        #     })
-        #     self.posts = self.posts.append(_, ignore_index=True)
-
-        #     self.action(self.posts.iloc[-1])
-        #     # self.posts.iloc[-1]['done'] = True
         self.driver.execute_script("""
                     comments = document.querySelectorAll('[id*="js_comment_"].js_mini_feed_comment')
                     comments.forEach(comment =>{
