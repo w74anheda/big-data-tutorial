@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   mongo:
-    image: mongo:5.0.17
+    image: mongo:7.0
     restart: always
     ports:
       - 9065:27017
