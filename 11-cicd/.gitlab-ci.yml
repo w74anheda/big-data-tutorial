@@ -8,16 +8,14 @@ stages:
   - test
   - deploy
 
-# run_backend_test:
-#     stage: test
-#     before_script:
-#       - cp .env.example .env
-#       - export DB_DATABASE=larashop DB_USERNAME=masoud DB_PASSWORD=@123 DB_ROOT_PASSWORD=@123
-#     script:
-#         - docker-compose up --build -d
-#         - sleep 30
-#         - docker-compose exec -T app sh -c "php artisan test --coverage"
-#         - docker-compose down
+run_backend_test:
+    stage: test
+    before_script:
+      - cp .env.example .env
+    script:
+        - docker-compose up --build -d
+        - sleep 30
+        - docker-compose exec -T app sh -c "php artisan test --coverage"
 
 deploy_backend:
     stage: deploy
