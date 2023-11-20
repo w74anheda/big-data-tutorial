@@ -1,6 +1,6 @@
 .ipynb_checkpoints
 .ipynb_*
-
+*/.ipynb_checkpoints
 /datasets
 
 /Mysql/mysql/
