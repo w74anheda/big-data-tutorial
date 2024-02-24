@@ -1,0 +1,88 @@
+version: "3"
+
+networks:
+    public:
+    db:
+
+services:
+
+    webserver:
+        image: nginx:alpine-slim
+        ports:
+            - "${WEBSERVER_PORT}:80"
+        volumes:
+            - .:/app
+            - ./docker/webserver.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - main
+        restart: on-failure
+        networks:
+            - public
+
+    main:
+        build:
+            context: .
+            dockerfile: dockerfile
+        volumes:
+            - .:/app
+            - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+            - ./docker/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+            - ./docker/php.ini:/usr/local/etc/php/php.ini
+        restart: on-failure
+        depends_on:
+            - db
+        networks:
+            - public
+            - db
+    main_queue:
+        build:
+            context: .
+            dockerfile: queue.dockerfile
+        volumes:
+            - .:/app
+            - ./docker/php.ini:/usr/local/etc/php/php.ini
+        restart: always
+        depends_on:
+            - db
+        networks:
+            - db
+
+    main_schedule:
+        build:
+            context: .
+            dockerfile: schedule.dockerfile
+        volumes:
+            - .:/app
+            - ./docker/php.ini:/usr/local/etc/php/php.ini
+        restart: always
+        depends_on:
+            - db
+        networks:
+            - db
+
+
+
+    db:
+        image: mysql:8.0
+        restart: on-failure
+        volumes:
+            - ./docker/databases/db:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: "${DB_ROOTPASSWORD}"
+        networks:
+            - db
+
+    phpmyadmin:
+        image: phpmyadmin:5.2.1
+        restart: on-failure
+        ports:
+            - ${PHPMYADMIN_PORT}:80
+        environment:
+            PMA_ARBITRARY: 1
+            PMA_PORT: 3306
+            UPLOAD_LIMIT: 300M
+        networks:
+            - db
